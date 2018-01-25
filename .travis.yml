@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+  - "stable"
+before_install:
+  - export DATABASE_URL="mysql://root:@127.0.0.1/nozama"
+  - export NPM_CONFIG_PRODUCTION=false
+install:
+  - npm install
+services:
+  - redis-server
+  - mysql
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS nozama;'
+  - mysql -u root --default-character-set=utf8 nozama < database/users.sql
