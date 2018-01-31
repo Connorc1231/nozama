@@ -9,13 +9,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/../client/dist'));
 
 app.post('/user/signup', async (req, res) => {
-  let data = db.postUser([req.body]);
+  db.postUser([req.body]);
   db.postUserDetails([req.body]);
   db.postUserOrders([req.body]);
-  db.postUserSocialMedia([req.body]);
+  // db.postUserSocialMedia([req.body]);
   db.postUserWishlist([req.body]);
-  console.log(data)
-  res.status(201).json(req.body);
+  res.status(201).json([req.body]);
+})
+
+app.post('/faker/:num', async (req, res) => {
+  let data = await db.faker(req.params.num);
+  res.status(200).json(req.body);
 })
 
 app.post('/user/login', async (req, res) => {
@@ -51,7 +55,7 @@ app.get('/user/:id/analytics', async (req, res) => {
 })
 
 app.get('/user/:id', async (req, res) => {
-  let data = await db.getUser(req.params.id)
+  let data = await db.getUserObject(req.params.id);
   res.status(200).json(data);
 })
 

@@ -12,12 +12,13 @@ const generatePassword = () => {
 }
 
 const getFakeUser = () => {
+  let username = faker.name.firstName() + faker.name.lastName() + Math.floor(Math.random() * 90);
   userData = {
     "id": null,
-    "first-name": faker.name.firstName(),
-    "last-name": faker.name.lastName(),
+    "first_name": faker.name.firstName(),
+    "last_name": faker.name.lastName(),
     "email": faker.internet.email(),
-    "username": faker.lorem.word(),
+    "username": username,
     "password": generatePassword(),
     "age": Math.floor(Math.random() * 90) + 13,
     "gender": ['M', 'F'][Math.floor(Math.random() * 2)],
@@ -28,45 +29,45 @@ const getFakeUser = () => {
       "lon": faker.address.longitude()
     },
     "subscription": "T",
-    "social-media": {
-      "facebook_url": "https://facebook.com",
-      "twitter_url": "https://twitter.com",
-      "instagram_url": "https://instagram.com"
+    "social_media": {
+      "facebook_url": `https://facebook.com/${username}`,
+      "twitter_url": `https://twitter.com/${username}`,
+      "instagram_url": `https://instagram.com/${username}`
     },
     "orders": [
     {
-      "productId": 1,
+      "product_id": Math.floor(Math.random() * 10000),
       "order_placed_at": "2017-05-23",
-      "price": 19.99
+      "price": Math.floor(Math.random() * 1000)
     },
     {
-      "productId": 3,
+      "product_id": Math.floor(Math.random() * 10000),
       "order_placed_at": "2017-05-25",
-      "price": 299.99
+      "price": Math.floor(Math.random() * 1000)
     }
     ],
     "wishlist": [
     {
-      "productId": 2,
+      "product_id": Math.floor(Math.random() * 10000),
       "created_at": "2018-01-13",
-      "price": 0.99
+      "price": Math.floor(Math.random() * 1000)
     },
     {
-      "productId": 4,
+      "product_id": Math.floor(Math.random() * 10000),
       "created_at": "2017-12-13",
-      "price": 99.99
+      "price": Math.floor(Math.random() * 1000)
     }
     ],
     "cart": [
     {
-      "productId": 5,
+      "product_id": Math.floor(Math.random() * 10000),
       "created_at": "2016-04-20",
-      "price": 59.99
+      "price": Math.floor(Math.random() * 1000)
     },
     {
-      "productId": 69,
+      "product_id": Math.floor(Math.random() * 10000),
       "created_at": "2018-01-02",
-      "price": 1.99
+      "price": Math.floor(Math.random() * 1000)
     }
     ]
   }
