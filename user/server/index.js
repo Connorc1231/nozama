@@ -9,11 +9,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/../client/dist'));
 
 app.post('/user/signup', async (req, res) => {
-  db.postUser([req.body]);
-  db.postUserDetails([req.body]);
-  db.postUserOrders([req.body]);
-  // db.postUserSocialMedia([req.body]);
-  db.postUserWishlist([req.body]);
+  db.postUser([req.body])
+    .then(results => {
+      console.log('results', results)
+      let ops = [postUserDetails([req.body]), postUserOrders([req.body]), postUserWishlist([req.body])]
+      return Promise.all(ops).then(data => data);
+    })
   res.status(201).json([req.body]);
 })
 

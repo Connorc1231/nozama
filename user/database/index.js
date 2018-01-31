@@ -28,7 +28,7 @@ const postUser = users => {
       .then(data => {
         if (data.length) {
           console.log('User already exists!');
-          return;
+          return false;
         } else {
           query += `("${user.username}", "${user.email}", "${user.password}"), `;
         }
@@ -37,6 +37,7 @@ const postUser = users => {
     .then(data => connection.queryAsync(query.substring(0, query.length - 2))
       .then(data => data)
     )
+    .catch(error => error);
 }
 
 
@@ -166,9 +167,10 @@ const getAnalytics = user_id => {
 const batchRequest = users => {
   postUser(users)
     .then(results => {
+      console.log('results', results)
       let ops = [postUserDetails(users), postUserOrders(users), postUserWishlist(users)]
       return Promise.all(ops).then(data => data);
-    });
+    })
 }
 
 
