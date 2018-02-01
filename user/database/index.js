@@ -21,6 +21,8 @@ connection.queryAsync = function queryAsync(...args) {
   });
 };
 
+// ---------------------------------------- Functions to populate tables ---------------------------------------- //
+
 const postUser = users => {
   let query = `INSERT INTO users (name, email, password) VALUES`;
   return Promise.all(users.map(user => {
@@ -61,7 +63,10 @@ const postUserOrders = users => {
   let query = `INSERT INTO user_orders (user_id, product_id, order_placed_at, price) VALUES `;
   return Promise.all(users.map(user => {
     user.orders.map(order => {
-      query += `((SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1), "${order.product_id}", "${order.order_placed_at}", "${order.price}"), `;  
+      query += `((SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1), 
+        "${order.product_id}", 
+        "${order.order_placed_at}", 
+        "${order.price}"), `;  
     })
   }))
     .then(data => connection.queryAsync(query.substring(0, query.length - 2))
@@ -84,13 +89,18 @@ const postUserWishlist = users => {
   let query = `INSERT INTO user_wishlist (user_id, product_id, created_at, related_items) VALUES `;
   return Promise.all(users.map(user => {
     user.wishlist.map(item => {
-      query += `((SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1), "${item.product_id}", "${item.created_at}", "Related Items Here"), `;  
+      query += `((SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1), 
+        "${item.product_id}", 
+        "${item.created_at}", 
+        "Related Items Here"), `;  
     })
   }))
     .then(data => connection.queryAsync(query.substring(0, query.length - 2))
       .then(data => data)
     )
 }
+
+// ---------------------------------------------------------------------------------------------------- //
 
 const loginUser = user => 
   new Promise((resolve, reject) => 
@@ -102,6 +112,24 @@ const loginUser = user =>
       }
     })
   )
+
+// To add single items to user's wishlist
+const addToWishlist = (item, user_id) => 
+  connection.queryAsync(
+    `INSERT INTO user_wishlist (user_id, product_id, created_at, related_items) 
+    VALUES (?, ?, ?, ?)`, 
+    [user_id, item.product_id, item.created_at, item.related_items]
+  ).then(data => data)
+
+// To place record a placed order
+const addOrder = (item, user_id) => 
+  connection.queryAsync(
+    `INSERT INTO user_orders (user_id, product_id, order_placed_at, price) 
+    VALUES (?, ?, ?, ?)`, 
+    [user_id, item.product_id, item.order_placed_at, item.price]
+  ).then(data => data)
+
+// ------------------------ Functions to build / export full user object ------------------------ //
 
 const getUserObject = user_id => {
   let userInfo = {};
@@ -125,18 +153,17 @@ const getUserObject = user_id => {
       "subscription_type" : results[1].subscription_type,
       "orders" : [],
       "wishlist" : [],
-      // "social_media": [{ "facebook_url": results[4].facebook_url, "twitter_url": results[4].twitter_url, "instagram_url": results[4].instagram_url }]
+      // "social_media": [{ 
+      //   "facebook_url": results[4].facebook_url, 
+      //   "twitter_url": results[4].twitter_url, 
+      //   "instagram_url": results[4].instagram_url 
+      // }]
     }
     results[2].map(order => { userInfo.orders.push({ "product_id": order.product_id }) })
     results[3].map(wish => { userInfo.wishlist.push({ "product_id": wish.product_id }) })
     return userInfo
   });
 }
-
-// To add single items to user's wishlist
-const addToWishlist = (item, user_id) => 
-    connection.queryAsync(`INSERT INTO user_wishlist (user_id, product_id, created_at, related_items) VALUES (?, ?, ?, ?)`, [user_id, item.product_id, item.createdAt, item.related_items])
-      .then(data => data)
 
 const getUser = user_id => 
     connection.queryAsync(`SELECT * FROM users WHERE user_id = ?`, [user_id])
@@ -157,6 +184,8 @@ const getOrders = user_id =>
 const getSocialMedia = user_id => 
     connection.queryAsync(`SELECT * FROM user_social_media WHERE user_id = ?`, [user_id])
       .then(data => data[0])
+
+// ---------------------------------------------------------------------------------------------- //
 
 const getAnalytics = user_id => {
   // Analytics
@@ -202,6 +231,7 @@ module.exports = {
   loginUser,
   getUserObject,
   addToWishlist,
+  addOrder,
   getWishlist,
   getOrders, 
   getAnalytics,

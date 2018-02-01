@@ -18,7 +18,7 @@ app.post('/user/signup', async (req, res) => {
   res.status(201).json([req.body]);
 })
 
-app.post('/faker/:num', async (req, res) => {
+app.post('/user/faker/:num', async (req, res) => {
   let data = await db.faker(req.params.num);
   res.status(200).json(req.body);
 })
@@ -35,7 +35,7 @@ app.post('/user/login', async (req, res) => {
 app.post('/user/:id/wishlist', async (req, res) => {
   let dt = new Date();
   dt = dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate();
-  req.body.createdAt = dt;
+  req.body.created_at = dt;
   let data = await db.addToWishlist(req.body, req.params.id);
   res.status(201).json(data);
 })
@@ -43,6 +43,14 @@ app.post('/user/:id/wishlist', async (req, res) => {
 app.get('/user/:id/wishlist', async (req, res) => {
   let data = await db.getWishlist(req.params.id);
   res.status(200).json(data);
+})
+
+app.post('/user/:id/orders', async (req, res) => {
+  let dt = new Date();
+  dt = dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate();
+  req.body.order_placed_at = dt;
+  let data = await db.addOrder(req.body, req.params.id);
+  res.status(201).json(data);
 })
 
 app.get('/user/:id/orders', async (req, res) => {
