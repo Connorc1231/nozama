@@ -1,18 +1,27 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const db = require('../database/index.js');
+const db = require('../database/index.js'); 
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(__dirname + '/../client/dist'));
 
+app.get('/', (req, res) => {
+  res.send('Index');
+})
+
+app.get('/test', async (req, res) => {
+  let data = await db.test()
+  res.send(data);
+})
+
 app.post('/user/signup', async (req, res) => {
   db.postUser([req.body])
     .then(results => {
       console.log('results', results)
-      let ops = [postUserDetails([req.body]), postUserOrders([req.body]), postUserWishlist([req.body])]
+      let ops = [db.postUserDetails([req.body]), db.postUserOrders([req.body]), db.postUserWishlist([req.body])]
       return Promise.all(ops).then(data => data);
     })
   res.status(201).json([req.body]);
@@ -64,7 +73,9 @@ app.get('/user/:id/analytics', async (req, res) => {
 })
 
 app.get('/user/:id', async (req, res) => {
+  console.time('time');
   let data = await db.getUserObject(req.params.id);
+  console.timeEnd('time');
   res.status(200).json(data);
 })
 

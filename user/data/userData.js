@@ -28,7 +28,6 @@ const getFakeUser = () => {
       "lat": faker.address.latitude(),
       "lon": faker.address.longitude()
     },
-    "subscription": "T",
     "social_media": {
       "facebook_url": `https://facebook.com/${username}`,
       "twitter_url": `https://twitter.com/${username}`,
@@ -91,7 +90,6 @@ module.exports = getFakeUser;
 //     "lat": 69,
 //     "lon": 420
 //   },
-//   "subscription": "T",
 //   "socialMedia": {
 //     "facebook_url": "https://facebook.com",
 //     "twitter_url": "https://twitter.com",

@@ -1,17 +1,22 @@
 const mysql = require('mysql');
-const path = require('path');
-const fs = require('fs');
 const getFakeUser = require('../data/userData.js');
+const analytics = require('./analytics.js');
 
-let connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'nozama'
-})
+// export MYSQL_URL="mysql://connor:password@13.57.26.4/nozama"
+let connection = mysql.createConnection(process.env.MYSQL_URL || {
+      // host     : 'localhost',
+      // user     : 'root',
+      // database : 'nozama',
+      // password : '',
+      host     : '13.57.26.4',
+      user     : 'connor',
+      database : 'nozama',
+      password : 'password',
+    });
 
 connection.queryAsync = function queryAsync(...args) {
   return new Promise((resolve, reject) => {
+    console.log('args', ...args);
     this.query(...args, (err, data) => {
       if (err) {
         return reject(err);
@@ -23,82 +28,88 @@ connection.queryAsync = function queryAsync(...args) {
 
 // ---------------------------------------- Functions to populate tables ---------------------------------------- //
 
-const postUser = users => {
+const postUser = user => {
   let query = `INSERT INTO users (name, email, password) VALUES`;
-  return Promise.all(users.map(user => {
-    return connection.queryAsync(`SELECT * FROM users WHERE name = "${user.username}"`)
-      .then(data => {
-        if (data.length) {
-          console.log('User already exists!');
-          return false;
-        } else {
-          query += `("${user.username}", "${user.email}", "${user.password}"), `;
-        }
-      })
-  }))
+  return connection.queryAsync(`SELECT name FROM users WHERE name = "${user.username}"`)
+  // return connection.queryAsync(`SELECT name FROM users WHERE name = "${user.username}"`)
+    .then(data => {
+      if (data.length) {
+        console.log('User already exists!');
+        Promise.reject(false);
+      } else {
+        query += `("${user.username}", "${user.email}", "${user.password}"), `;
+      }
+    })
     .then(data => connection.queryAsync(query.substring(0, query.length - 2))
       .then(data => data)
+    )
+    .then(data => connection.queryAsync('(SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1)')
+      .then(data => data[0].user_id)
     )
     .catch(error => error);
 }
 
-
 const postUserDetails = users => {
+  let query = `INSERT INTO user_details (user_id, zip, state, gender, age) VALUES `;
   return Promise.all(users.map(user => {
     user.zip = user.zip.slice(0, 5)
-      let query = `INSERT INTO user_details (user_id, zip, state, gender, age, subscription_type) VALUES (
-        (SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1), 
-        "${user.zip}",
-        "${user.state}", 
-        "${user.gender}", 
-        "${user.age}", 
-        "${user.subscription}"
-      )`;
-    return connection.queryAsync(query).then(data => data);
+    query += `(
+      "${user.id}", 
+      "${user.zip}",
+      "${user.state}", 
+      "${user.gender}", 
+      "${user.age}"
+    ), `;
   }))
-  
+  .then(connection.queryAsync(query.substring(0, query.length - 2))
+    .then(data => data)
+  )
+  .catch(error => error)
 }
 
 const postUserOrders = users => {
   let query = `INSERT INTO user_orders (user_id, product_id, order_placed_at, price) VALUES `;
   return Promise.all(users.map(user => {
     user.orders.map(order => {
-      query += `((SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1), 
+      query += `(
+        "${user.id}",  
         "${order.product_id}", 
         "${order.order_placed_at}", 
         "${order.price}"), `;  
     })
   }))
-    .then(data => connection.queryAsync(query.substring(0, query.length - 2))
-      .then(data => data)
-    )
+  .then(data => connection.queryAsync(query.substring(0, query.length - 2))
+    .then(data => data)
+  )
+  .catch(error => error);
 }
 
-const postUserSocialMedia = user => {
-  let query = `INSERT INTO user_social_media (user_id, facebook_url, twitter_url, instagram_url) VALUES (
-    (SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1), 
-      "${user.social_media.facebook_url}", 
-      "${user.social_media.twitter_url}", 
-      "${user.social_media.instagram_url}"
-      )`;
-  connection.query(query);
-}
-
-// To add existing fake data items into db
 const postUserWishlist = users => {
   let query = `INSERT INTO user_wishlist (user_id, product_id, created_at, related_items) VALUES `;
   return Promise.all(users.map(user => {
     user.wishlist.map(item => {
-      query += `((SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1), 
+      query += `(
+        "${user.id}", 
         "${item.product_id}", 
         "${item.created_at}", 
-        "Related Items Here"), `;  
+        "Related Items Here"), `;
     })
   }))
-    .then(data => connection.queryAsync(query.substring(0, query.length - 2))
-      .then(data => data)
-    )
+  .then(data => connection.queryAsync(query.substring(0, query.length - 2))
+    .then(data => data)
+  )
+  .catch(error => error);
 }
+
+// const postUserSocialMedia = users => {
+//   let query = `INSERT INTO user_social_media (user_id, facebook_url, twitter_url, instagram_url) VALUES (
+//       "${user.id}", 
+//       "${user.social_media.facebook_url}", 
+//       "${user.social_media.twitter_url}", 
+//       "${user.social_media.instagram_url}"
+//       )`;
+//   connection.query(query);
+// }
 
 // ---------------------------------------------------------------------------------------------------- //
 
@@ -111,7 +122,7 @@ const loginUser = user =>
         else { reject(err) }
       }
     })
-  )
+  ).catch(error => error);
 
 // To add single items to user's wishlist
 const addToWishlist = (item, user_id) => 
@@ -119,7 +130,9 @@ const addToWishlist = (item, user_id) =>
     `INSERT INTO user_wishlist (user_id, product_id, created_at, related_items) 
     VALUES (?, ?, ?, ?)`, 
     [user_id, item.product_id, item.created_at, item.related_items]
-  ).then(data => data)
+  )
+    .then(data => data)
+    .catch(error => error);
 
 // To place record a placed order
 const addOrder = (item, user_id) => 
@@ -127,7 +140,9 @@ const addOrder = (item, user_id) =>
     `INSERT INTO user_orders (user_id, product_id, order_placed_at, price) 
     VALUES (?, ?, ?, ?)`, 
     [user_id, item.product_id, item.order_placed_at, item.price]
-  ).then(data => data)
+  )
+    .then(data => data)
+    .catch(error => error);
 
 // ------------------------ Functions to build / export full user object ------------------------ //
 
@@ -138,7 +153,6 @@ const getUserObject = user_id => {
     getUserDetails(user_id),
     getOrders(user_id),
     getWishlist(user_id),
-    // getSocialMedia(user_id)
   ];
 
   return Promise.all(ops)
@@ -150,19 +164,13 @@ const getUserObject = user_id => {
       "age" : results[1].age,
       "state" : results[1].state,
       "zip" : results[1].zip,
-      "subscription_type" : results[1].subscription_type,
       "orders" : [],
       "wishlist" : [],
-      // "social_media": [{ 
-      //   "facebook_url": results[4].facebook_url, 
-      //   "twitter_url": results[4].twitter_url, 
-      //   "instagram_url": results[4].instagram_url 
-      // }]
     }
     results[2].map(order => { userInfo.orders.push({ "product_id": order.product_id }) })
     results[3].map(wish => { userInfo.wishlist.push({ "product_id": wish.product_id }) })
     return userInfo
-  });
+  }).catch(error => error);
 }
 
 const getUser = user_id => 
@@ -193,29 +201,37 @@ const getAnalytics = user_id => {
 
 // --------------------------- FAKE DATA GENERATOR -------------------------------//
 
-const batchRequest = users => {
-  postUser(users)
-    .then(results => {
-      console.log('results', results)
-      let ops = [postUserDetails(users), postUserOrders(users), postUserWishlist(users)]
-      return Promise.all(ops).then(data => data);
-    })
-}
+const batchRequest = async user => 
+  new Promise((resolve, reject) => 
+    postUser(user)
+      .then(lastUserId => {
+        user.id = lastUserId
+        resolve(user)
+      })
+      .catch(error => error)
+  )
+
+
 
 
 const faker = async n => {
-  n = 100000;
-  interval = 1000;
-  console.time(`Time took to create ${n} users`);
-  for (let i = 0; i < n; i += interval) {
-    let batch = [];
-    for (let j = i; j < i + interval; j++) {
-      batch.push(getFakeUser())
+  n = 1000;
+  console.time(`Total time for ${n}`);
+  for (let o = 0; o < n; o += 100) {
+    let batch = []
+    for (let i = o; i < o + 100; i++) {
+      console.time(`User Entry #${i + 1} / ${n} took`);
+      let result = await batchRequest(getFakeUser());
+      if (result) {
+        batch.push(result);
+      }
+      console.timeEnd(`User Entry #${i + 1} / ${n} took`);
     }
-    await batchRequest(batch);
-    console.log(`User Entry #${i + interval} / ${n} `)
+    postUserDetails(batch);
+    postUserOrders(batch);
+    postUserWishlist(batch);
   }
-  console.timeEnd(`Time took to create ${n} users`);
+  console.timeEnd(`Total time for ${n}`);
   return `SUCCESS! ${n} users entered into the database`
 }
 
@@ -226,7 +242,6 @@ module.exports = {
   postUser,
   postUserDetails,
   postUserOrders,
-  postUserSocialMedia,
   postUserWishlist,
   loginUser,
   getUserObject,
