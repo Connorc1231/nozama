@@ -13,11 +13,9 @@ CREATE TABLE `users`(
 CREATE TABLE `user_details`(
  `user_details_id` INTEGER NOT NULL AUTO_INCREMENT,
  `user_id` INTEGER NOT NULL,
- `zip` INTEGER NOT NULL,
  `state` VARCHAR(2) NOT NULL,
  `gender` VARCHAR(1) NOT NULL,
  `age` INTEGER NOT NULL,
- `subscription_type` VARCHAR(1) NOT NULL,
  PRIMARY KEY(`user_details_id`),
  FOREIGN KEY (`user_id`) REFERENCES users(`user_id`)
 );

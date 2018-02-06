@@ -1,30 +1,7 @@
 const mysql = require('mysql');
 const getFakeUser = require('../data/userData.js');
 const analytics = require('./analytics.js');
-
-// export MYSQL_URL="mysql://connor:password@13.57.26.4/nozama"
-let connection = mysql.createConnection(process.env.MYSQL_URL || {
-      // host     : 'localhost',
-      // user     : 'root',
-      // database : 'nozama',
-      // password : '',
-      host     : '13.57.26.4',
-      user     : 'connor',
-      database : 'nozama',
-      password : 'password',
-    });
-
-connection.queryAsync = function queryAsync(...args) {
-  return new Promise((resolve, reject) => {
-    console.log(...args)
-    this.query(...args, (err, data) => {
-      if (err) {
-        return reject(err);
-      }
-      return resolve(data);
-    });
-  });
-};
+const connection = require('./connection.js');
 
 // ---------------------------------------- Functions to populate tables ---------------------------------------- //
 
@@ -195,9 +172,9 @@ const batchRequest = async user =>
 
 const faker = async n => {
   console.time(`Total time for ${n}`);
-  for (let o = 0; o < n; o += 10) {
+  for (let o = 0; o < n; o += 100) {
     let batch = []
-    for (let i = o; i < o + 10; i++) {
+    for (let i = o; i < o + 100; i++) {
       console.time(`User Entry #${i + 1} / ${n} took`);
       let result = await batchRequest(getFakeUser());
       if (result) {
