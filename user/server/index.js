@@ -12,11 +12,6 @@ app.get('/', (req, res) => {
   res.send('Index');
 })
 
-app.get('/test', async (req, res) => {
-  let data = await db.test()
-  res.send(data);
-})
-
 app.post('/user/signup', async (req, res) => {
   db.postUser([req.body])
     .then(results => {
@@ -79,7 +74,7 @@ app.get('/user/:id', async (req, res) => {
   res.status(200).json(data);
 })
 
-const server = app.listen(process.env.PORT || 6969, () => {
+const server = app.listen(process.env.PORT || 8000, () => {
   let port = server.address().port;
   console.log('Listening at port %s', port);
 });

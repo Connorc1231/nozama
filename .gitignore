@@ -87,3 +87,7 @@ package-lock.json
 
 # vscode
 .vscode
+
+# AWS ec2 pem
+*.pem
+

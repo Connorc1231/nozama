@@ -24,21 +24,11 @@ CREATE TABLE `user_details`(
 
 CREATE TABLE `user_orders`(
  `order_id` INTEGER NOT NULL AUTO_INCREMENT,
+ `user_id` INTEGER NOT NULL,
  `product_id` INTEGER NOT NULL,
- `order_placed_at` DATE NOT NULL,
+ `order_placed_at` VARCHAR(50) NOT NULL,
  `price` INTEGER NOT NULL,
- `user_id` INTEGER NOT NULL,
  PRIMARY KEY(`order_id`),
- FOREIGN KEY (`user_id`) REFERENCES users(`user_id`)
-);
-
-CREATE TABLE `user_social_media`(
- `social_media_id` INTEGER NOT NULL AUTO_INCREMENT,
- `user_id` INTEGER NOT NULL,
- `facebook_url` VARCHAR(50) NULL,
- `twitter_url` VARCHAR(50) NULL,
- `instagram_url` VARCHAR(50) NULL,
- PRIMARY KEY(`social_media_id`),
  FOREIGN KEY (`user_id`) REFERENCES users(`user_id`)
 );
 
@@ -46,7 +36,7 @@ CREATE TABLE `user_wishlist`(
  `user_wishlist_id` INTEGER NOT NULL AUTO_INCREMENT,
  `user_id` INTEGER NOT NULL,
  `product_id` INTEGER NOT NULL,
- `created_at` DATE NOT NULL,
+ `created_at` VARCHAR(50) NOT NULL,
  `related_items` VARCHAR(50) NULL,
  PRIMARY KEY(`user_wishlist_id`),
  FOREIGN KEY (`user_id`) REFERENCES users(`user_id`)

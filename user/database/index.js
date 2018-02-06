@@ -16,7 +16,7 @@ let connection = mysql.createConnection(process.env.MYSQL_URL || {
 
 connection.queryAsync = function queryAsync(...args) {
   return new Promise((resolve, reject) => {
-    console.log('args', ...args);
+    console.log(...args)
     this.query(...args, (err, data) => {
       if (err) {
         return reject(err);
@@ -31,7 +31,6 @@ connection.queryAsync = function queryAsync(...args) {
 const postUser = user => {
   let query = `INSERT INTO users (name, email, password) VALUES`;
   return connection.queryAsync(`SELECT name FROM users WHERE name = "${user.username}"`)
-  // return connection.queryAsync(`SELECT name FROM users WHERE name = "${user.username}"`)
     .then(data => {
       if (data.length) {
         console.log('User already exists!');
@@ -40,9 +39,7 @@ const postUser = user => {
         query += `("${user.username}", "${user.email}", "${user.password}"), `;
       }
     })
-    .then(data => connection.queryAsync(query.substring(0, query.length - 2))
-      .then(data => data)
-    )
+    .then(data => connection.queryAsync(query.substring(0, query.length - 2)))
     .then(data => connection.queryAsync('(SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1)')
       .then(data => data[0].user_id)
     )
@@ -50,12 +47,10 @@ const postUser = user => {
 }
 
 const postUserDetails = users => {
-  let query = `INSERT INTO user_details (user_id, zip, state, gender, age) VALUES `;
+  let query = `INSERT INTO user_details (user_id, state, gender, age) VALUES `;
   return Promise.all(users.map(user => {
-    user.zip = user.zip.slice(0, 5)
     query += `(
       "${user.id}", 
-      "${user.zip}",
       "${user.state}", 
       "${user.gender}", 
       "${user.age}"
@@ -68,6 +63,7 @@ const postUserDetails = users => {
 }
 
 const postUserOrders = users => {
+    console.log('b')
   let query = `INSERT INTO user_orders (user_id, product_id, order_placed_at, price) VALUES `;
   return Promise.all(users.map(user => {
     user.orders.map(order => {
@@ -85,6 +81,7 @@ const postUserOrders = users => {
 }
 
 const postUserWishlist = users => {
+    console.log('c')
   let query = `INSERT INTO user_wishlist (user_id, product_id, created_at, related_items) VALUES `;
   return Promise.all(users.map(user => {
     user.wishlist.map(item => {
@@ -101,24 +98,14 @@ const postUserWishlist = users => {
   .catch(error => error);
 }
 
-// const postUserSocialMedia = users => {
-//   let query = `INSERT INTO user_social_media (user_id, facebook_url, twitter_url, instagram_url) VALUES (
-//       "${user.id}", 
-//       "${user.social_media.facebook_url}", 
-//       "${user.social_media.twitter_url}", 
-//       "${user.social_media.instagram_url}"
-//       )`;
-//   connection.query(query);
-// }
-
 // ---------------------------------------------------------------------------------------------------- //
 
 const loginUser = user => 
   new Promise((resolve, reject) => 
-    connection.query('SELECT * FROM users WHERE name=?', [user.username], (err, data) => {
+    connection.query('SELECT password FROM users WHERE name=?', [user.username], (err, data) => {
       if (err) { reject(err) }
       else { 
-        if (data[0].password === user.password) { resolve(data[0]) } 
+        if (data[0] && data[0].password === user.password) { resolve(data[0]) } 
         else { reject(err) }
       }
     })
@@ -163,7 +150,6 @@ const getUserObject = user_id => {
       "gender" : results[1].gender,
       "age" : results[1].age,
       "state" : results[1].state,
-      "zip" : results[1].zip,
       "orders" : [],
       "wishlist" : [],
     }
@@ -189,10 +175,6 @@ const getOrders = user_id =>
     connection.queryAsync(`SELECT * FROM user_orders WHERE user_id = ?`, [user_id])
       .then(data => data)
 
-const getSocialMedia = user_id => 
-    connection.queryAsync(`SELECT * FROM user_social_media WHERE user_id = ?`, [user_id])
-      .then(data => data[0])
-
 // ---------------------------------------------------------------------------------------------- //
 
 const getAnalytics = user_id => {
@@ -205,21 +187,17 @@ const batchRequest = async user =>
   new Promise((resolve, reject) => 
     postUser(user)
       .then(lastUserId => {
-        user.id = lastUserId
+        user.id = lastUserId;
         resolve(user)
       })
       .catch(error => error)
   )
 
-
-
-
 const faker = async n => {
-  n = 1000;
   console.time(`Total time for ${n}`);
-  for (let o = 0; o < n; o += 100) {
+  for (let o = 0; o < n; o += 10) {
     let batch = []
-    for (let i = o; i < o + 100; i++) {
+    for (let i = o; i < o + 10; i++) {
       console.time(`User Entry #${i + 1} / ${n} took`);
       let result = await batchRequest(getFakeUser());
       if (result) {
