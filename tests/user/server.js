@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 
-const getFakeUser = require('../../user/data/userData')
+const getFakeUser = require('../../user/data/faker')
 const server = require('../../user/server/index');
 const database = require('../../user/database/index');
 

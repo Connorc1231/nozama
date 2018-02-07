@@ -91,3 +91,6 @@ package-lock.json
 # AWS ec2 pem
 *.pem
 
+# fakeData csv
+*.csv
+

@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-const getFakeUser = require('../data/userData.js');
+const getFakeUser = require('../data/faker.js');
 const analytics = require('./analytics.js');
 const connection = require('./connection.js');
 
@@ -10,7 +10,6 @@ const postUser = user => {
   return connection.queryAsync(`SELECT name FROM users WHERE name = "${user.username}"`)
     .then(data => {
       if (data.length) {
-        console.log('User already exists!');
         Promise.reject(false);
       } else {
         query += `("${user.username}", "${user.email}", "${user.password}"), `;
@@ -20,7 +19,7 @@ const postUser = user => {
     .then(data => connection.queryAsync('(SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1)')
       .then(data => data[0].user_id)
     )
-    .catch(error => error);
+    .catch(error => 'User already exists!');
 }
 
 const postUserDetails = users => {
@@ -112,7 +111,7 @@ const addOrder = (item, user_id) =>
 
 const getUserObject = user_id => {
   let userInfo = {};
-  let ops = [
+  const ops = [
     getUser(user_id),
     getUserDetails(user_id),
     getOrders(user_id),
@@ -122,13 +121,14 @@ const getUserObject = user_id => {
   return Promise.all(ops)
     .then(results => {
     userInfo = {
+      "id": user_id,
       "username" : results[0].name,
       "email" : results[0].email,
       "gender" : results[1].gender,
       "age" : results[1].age,
       "state" : results[1].state,
       "orders" : [],
-      "wishlist" : [],
+      "wishlist" : []
     }
     results[2].map(order => { userInfo.orders.push({ "product_id": order.product_id }) })
     results[3].map(wish => { userInfo.wishlist.push({ "product_id": wish.product_id }) })
@@ -158,40 +158,6 @@ const getAnalytics = user_id => {
   // Analytics
 }
 
-// --------------------------- FAKE DATA GENERATOR -------------------------------//
-
-const batchRequest = async user => 
-  new Promise((resolve, reject) => 
-    postUser(user)
-      .then(lastUserId => {
-        user.id = lastUserId;
-        resolve(user)
-      })
-      .catch(error => error)
-  )
-
-const faker = async n => {
-  console.time(`Total time for ${n}`);
-  for (let o = 0; o < n; o += 100) {
-    let batch = []
-    for (let i = o; i < o + 100; i++) {
-      console.time(`User Entry #${i + 1} / ${n} took`);
-      let result = await batchRequest(getFakeUser());
-      if (result) {
-        batch.push(result);
-      }
-      console.timeEnd(`User Entry #${i + 1} / ${n} took`);
-    }
-    postUserDetails(batch);
-    postUserOrders(batch);
-    postUserWishlist(batch);
-  }
-  console.timeEnd(`Total time for ${n}`);
-  return `SUCCESS! ${n} users entered into the database`
-}
-
-
-
 module.exports = {
   connection,
   postUser,
@@ -199,12 +165,10 @@ module.exports = {
   postUserOrders,
   postUserWishlist,
   loginUser,
-  getUserObject,
-  addToWishlist,
   addOrder,
+  getOrders,
+  addToWishlist,
   getWishlist,
-  getOrders, 
-  getAnalytics,
-  batchRequest,
-  faker
+  getUserObject,
+  getAnalytics
 }

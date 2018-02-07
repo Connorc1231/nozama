@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-const getFakeUser = require('../data/userData.js');
+const getFakeUser = require('../data/faker.js');
 
 
 
