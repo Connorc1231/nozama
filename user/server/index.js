@@ -39,25 +39,23 @@ app.get('/user/:id', async (req, res) => {
 *    "firstName": STRING, "lastName": STRING, "email": STRING, 
 *    "username": STRING, "password": STRING, "age": INT, "gender": VARCHAR(1), "state": VARCHAR(2), 
 *    "orders": [{"product_id": INT, "order_placed_at": STRING(MM/DD/YYYY), "price": INT}],
-*    "wishlist": [{"product_id": INT, "created_at": STRING(MM/DD/YYYY), "price": INT}],
+*    "wishlist": [{"product_id": INT, "created_at": STRING(MM/DD/YYYY), "price": INT}]
 *  }
 */
 app.post('/user/signup', async (req, res) => {
   let response = await db.postUser(req.body)
-    .then(results => {
-      if (Number.isInteger(results)) {
-        req.body['id'] = results;
-        let ops = [
-          db.postUserDetails([req.body]), 
-          db.postUserOrders([req.body]), 
-          db.postUserWishlist([req.body])
-        ]
-        return Promise.all(ops).then(data => data);
-      } else {
-        res.status(400).json('Username already exists!')
-      }
-    })
-  res.status(201).json(response);
+    if (Number.isInteger(response)) {
+      req.body['id'] = response;
+      let ops = [
+        db.postUserDetails([req.body]), 
+        db.postUserOrders([req.body]), 
+        db.postUserWishlist([req.body])
+      ]
+      let data = await Promise.all(ops)
+      res.status(201).json(data);
+    } else {
+      res.status(400).json('Username already exists!')
+    }
 })
 
 /*  Logs user into account
@@ -66,21 +64,21 @@ app.post('/user/signup', async (req, res) => {
 */
 app.post('/user/login', async (req, res) => {
   try {
-    let data = await db.loginUser(req.body);
-    if (!data) { throw 'Incorrect username / password!' }
-    res.status(200).json('Logged In!');
-  } catch (err) {
+    let loggedIn = await db.loginUser(req.body);
+    if (loggedIn) { res.status(200).json('Logged In!') }
+    else { throw('Username / Password invalid') }
+  } catch(err) {
     res.status(401).json(err);
   }
 })
 
 /*  Record an order
 *   I: Obj | O: Obj
-*   Required params: { "product_id": INT, "order_placed_at": STRING('MM/DD/YYYY'), "price": INT }
+*   Required params: { "product_id": INT, "price": INT }
 */
 app.post('/user/:id/orders', async (req, res) => {
   let dt = new Date();
-  dt = dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate();
+  dt = ("0" + dt.getMonth()).slice(-2) + "/" + ("0" + dt.getDate()).slice(-2) + "/" + dt.getFullYear();
   req.body.order_placed_at = dt;
   let data = await db.addOrder(req.body, req.params.id);
   res.status(201).json(data);
@@ -97,11 +95,11 @@ app.get('/user/:id/orders', async (req, res) => {
 
 /*  Add item to user's wishlist
 *   I: Obj | O: Obj
-*   Required params: { "product_id": INT, "created_at": STRING('MM/DD/YYYY'), "related_items": ? }
+*   Required params: { "product_id": INT, "related_items": ? }
 */
 app.post('/user/:id/wishlist', async (req, res) => {
   let dt = new Date();
-  dt = dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate();
+  dt = ("0" + dt.getMonth()).slice(-2) + "/" + ("0" + dt.getDate()).slice(-2) + "/" + dt.getFullYear();
   req.body.created_at = dt;
   let data = await db.addToWishlist(req.body, req.params.id);
   res.status(201).json(data);

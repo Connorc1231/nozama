@@ -11,31 +11,31 @@ const writeData = (n) => {
 }
 
 const readUserData = () => {
-  let query = `LOAD DATA LOCAL INFILE './users.csv' INTO TABLE nozama.users FIELDS TERMINATED BY ',';`;
-  connection.queryAsync(query)
-    .then(data => console.log(data))
-    .catch(error => error);
+  try { 
+    let query = `LOAD DATA LOCAL INFILE './users.csv' INTO TABLE nozama.users FIELDS TERMINATED BY ',';`;
+    let data = connection.queryAsync(query); 
+  } catch(error) {console.log(error)}
 }
 
 const readUserDetailsData = () => {
-  let query = "LOAD DATA LOCAL INFILE '/Users/Connor_Chen/Documents/Git/nozama/user/data/userDetails.csv' INTO TABLE user_details FIELDS TERMINATED BY ',';";
-  connection.queryAsync(query)
-    .then(data => console.log(data))
-    .catch(error => error);
+  try { 
+    let query = "LOAD DATA LOCAL INFILE '/Users/Connor_Chen/Documents/Git/nozama/user/data/userDetails.csv' INTO TABLE user_details FIELDS TERMINATED BY ',';";
+    let data = connection.queryAsync(query); 
+  } catch(error) {console.log(error)}
 }
 
 const readUserOrdersData = () => {
-  let query = "LOAD DATA LOCAL INFILE '/Users/Connor_Chen/Documents/Git/nozama/user/data/userOrders.csv' INTO TABLE user_orders FIELDS TERMINATED BY ',';";
-  connection.queryAsync(query)
-    .then(data => console.log(data))
-    .catch(error => error);
+  try { 
+    let query = "LOAD DATA LOCAL INFILE '/Users/Connor_Chen/Documents/Git/nozama/user/data/userOrders.csv' INTO TABLE user_orders FIELDS TERMINATED BY ',';";
+    let data = connection.queryAsync(query); 
+  } catch(error) {console.log(error)}
 }
 
 const readUserWishlistData = () => {
-  let query = "LOAD DATA LOCAL INFILE '/Users/Connor_Chen/Documents/Git/nozama/user/data/userWishlist.csv' INTO TABLE user_wishlist FIELDS TERMINATED BY ',';";
-  connection.queryAsync(query)
-    .then(data => console.log(data))
-    .catch(error => error);
+  try { 
+    let query = "LOAD DATA LOCAL INFILE '/Users/Connor_Chen/Documents/Git/nozama/user/data/userWishlist.csv' INTO TABLE user_wishlist FIELDS TERMINATED BY ',';";
+    let data = connection.queryAsync(query); 
+  } catch(error) {console.log(error)}
 }
 
 // Uncomment below if you know what youre doing...
