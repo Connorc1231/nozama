@@ -1,6 +1,4 @@
 const mysql = require('mysql');
-const getFakeUser = require('../data/faker.js');
-const analytics = require('./analytics.js');
 const connection = require('./connection.js');
 
 // ---------------------------------------- Functions to populate tables ---------------------------------------- //
@@ -152,12 +150,6 @@ const getOrders = user_id =>
     connection.queryAsync(`SELECT * FROM user_orders WHERE user_id = ?`, [user_id])
       .then(data => data)
 
-// ---------------------------------------------------------------------------------------------- //
-
-const getAnalytics = user_id => {
-  // Analytics
-}
-
 module.exports = {
   connection,
   postUser,
@@ -169,6 +161,5 @@ module.exports = {
   getOrders,
   addToWishlist,
   getWishlist,
-  getUserObject,
-  getAnalytics
+  getUserObject
 }

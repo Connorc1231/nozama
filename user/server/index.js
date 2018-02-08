@@ -1,11 +1,21 @@
+
+/********************************************************************************************/
+/*    //       //   //////////  //////////      ///       ////       ////       ///         */
+/*    ////     //   //      //         //      // //      // //     // //      // //        */ 
+/*    // ///   //   //      //       //       //   //     //  //   //  //     //   //       */
+/*    //   /// //   //      //     //        /////////    //   // //   //    /////////      */
+/*    //     ////   //      //   //         //       //   //    ///    //   //       //     */
+/*    //       //   //////////  /////////  //         //  //           //  //         //    */
+/********************************************************************************************/
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const db = require('../database/index.js'); 
+const al = require('../database/analytics')
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
 app.use(express.static(__dirname + '/../client/dist'));
 
 app.get('/', (req, res) => {
@@ -37,7 +47,11 @@ app.post('/user/signup', async (req, res) => {
     .then(results => {
       if (Number.isInteger(results)) {
         req.body['id'] = results;
-        let ops = [db.postUserDetails([req.body]), db.postUserOrders([req.body]), db.postUserWishlist([req.body])]
+        let ops = [
+          db.postUserDetails([req.body]), 
+          db.postUserOrders([req.body]), 
+          db.postUserWishlist([req.body])
+        ]
         return Promise.all(ops).then(data => data);
       } else {
         res.status(400).json('Username already exists!')
@@ -102,14 +116,18 @@ app.get('/user/:id/wishlist', async (req, res) => {
   res.status(200).json(data);
 })
 
+//--User Analytics------------------------------------------------------------------------------//
+
 /*  Get user analytics
 *   I: Null | O: Obj
 *   Required params: { none }
 */
-app.get('/user/:id/analytics', async (req, res) => {
-  let data = await db.getAnalytics(req.params.id)
+app.get('/user/analytics/wishlist/:id', async (req, res) => {
+  let data = await al.wishlistByAge(req.params.id)
   res.status(200).json(data);
 })
+
+
 
 const server = app.listen(process.env.PORT || 8000, () => {
   let port = server.address().port;

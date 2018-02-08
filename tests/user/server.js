@@ -21,7 +21,7 @@ describe('Server', () => {
   //         expect(res.statusCode).to.equal(201);
   //         done();
   //       });
-  //   }).timeout(500);
+  //   }).timeout(200);
   // })
 
   // GET ORDER
@@ -36,7 +36,7 @@ describe('Server', () => {
           expect(res).to.have.status(200);
           done();
         })
-    }).timeout(500);
+    }).timeout(200);
     it('should return an array of objects', done => {
       chai
         .request(server)
@@ -45,7 +45,7 @@ describe('Server', () => {
           expect(res.body).to.be.an('array');
           done();
         })
-    }).timeout(500);
+    }).timeout(200);
     it('each order object should include a product_id', done => {
       chai
         .request(server)
@@ -54,7 +54,7 @@ describe('Server', () => {
           expect(res.body[res.body.length - 1].product_id).to.equal(1337);
           done();
         })
-    }).timeout(500);
+    }).timeout(200);
   })
 
   // GET WISHLIST
@@ -69,7 +69,7 @@ describe('Server', () => {
           expect(res).to.have.status(200);
           done();
         })
-    }).timeout(500);
+    }).timeout(200);
     it('should return an array of objects', done => {
       chai
         .request(server)
@@ -100,7 +100,7 @@ describe('Server', () => {
           expect(res).to.have.status(200);
           done();
         })
-    }).timeout(500);
+    }).timeout(200);
     it('should return a user object', done => {
       chai
         .request(server)
@@ -109,7 +109,7 @@ describe('Server', () => {
           expect(res.body).to.be.an('object');
           done();
         })
-    }).timeout(500);
+    }).timeout(200);
     it('user object should include relevant fields', done => {
       chai
         .request(server)
@@ -122,7 +122,7 @@ describe('Server', () => {
           expect(passing).to.eql(true);
           done();
         })
-    }).timeout(500);
+    }).timeout(200);
   })
 
 
