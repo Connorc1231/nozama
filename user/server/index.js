@@ -27,9 +27,7 @@ app.get('/', (req, res) => {
 *   Required params: { none }
 */
 app.get('/user/:id', async (req, res) => {
-  console.time('time');
   let data = await db.getUserObject(req.params.id);
-  console.timeEnd('time');
   res.status(200).json(data);
 })
 
@@ -90,6 +88,9 @@ app.post('/user/:id/orders', async (req, res) => {
 */
 app.get('/user/:id/orders', async (req, res) => {
   let data = await db.getOrders(req.params.id)
+  if (!data.length) {
+    res.status(404).json('No orders found for specified user!');
+  }
   res.status(200).json(data);
 })
 
@@ -111,6 +112,9 @@ app.post('/user/:id/wishlist', async (req, res) => {
 */
 app.get('/user/:id/wishlist', async (req, res) => {
   let data = await db.getWishlist(req.params.id);
+  if (!data.length) {
+    res.status(404).json('No wishlist found for specified user!');
+  }
   res.status(200).json(data);
 })
 
@@ -120,7 +124,7 @@ app.get('/user/:id/wishlist', async (req, res) => {
 *   I: Null | O: Obj
 *   Required params: { none }
 */
-app.get('/user/analytics/wishlist/:id', async (req, res) => {
+app.get('/user/analytics/:id/wishlist', async (req, res) => {
   let data = await al.wishlistByAge(req.params.id)
   res.status(200).json(data);
 })
