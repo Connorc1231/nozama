@@ -8,6 +8,7 @@
 /*    //       //   //////////  /////////  //         //  //           //  //         //    */
 /********************************************************************************************/
 
+require('newrelic')
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -17,6 +18,7 @@ const al = require('../database/analytics')
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/../client/dist'));
+
 
 app.get('/', (req, res) => {
   res.send('Welcome~');
@@ -124,7 +126,7 @@ app.get('/user/:id/wishlist', async (req, res) => {
 *   I: Null | O: Obj
 *   Required params: { none }
 */
-app.get('/user/analytics/:id/wishlist', async (req, res) => {
+app.get('/user/:id/analytics/wishlist', async (req, res) => {
   let data = await al.wishlistByAge(req.params.id)
   res.status(200).json(data);
 })
