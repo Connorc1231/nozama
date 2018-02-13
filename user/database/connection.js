@@ -2,14 +2,12 @@ const mysql = require('mysql');
 
 // export MYSQL_URL="mysql://user:pass@host/db"
 // export MYSQL="mysql://connor:password@54.215.152.15/nozama"
-let connection = mysql.createConnection(process.env.MYSQL_URL || {
-      host     : 'localhost',
-      user     : 'root',
-      database : 'nozama',
-      password : '',
-    });
-
-console.log(process.env.MYSQL_URL);
+const connection = mysql.createConnection(process.env.MYSQL_URL || {
+  host: 'localhost',
+  user: 'root',
+  database: 'nozama',
+  password: '',
+});
 
 connection.queryAsync = function queryAsync(...args) {
   return new Promise((resolve, reject) => {

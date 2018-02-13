@@ -1,4 +1,4 @@
-const getFakeUser = require('./faker.js')
+const getFakeUser = require('./faker.js');
 
 class fakerGenerator {
   constructor(props) {
@@ -9,9 +9,9 @@ class fakerGenerator {
       userDetails: [],
       userOrders: [],
       userWishlist: [],
-    }
+    };
 
-    this.init()
+    this.init();
   }
 
   init(props) {
@@ -23,12 +23,12 @@ class fakerGenerator {
   }
 
   format() {
-    this.batch.map(user => {
+    this.batch.map((user) => {
       this.formatUsers(user);
       this.formatUserDetails(user);
       this.formatUserOrders(user);
       this.formatUserWishlist(user);
-    })
+    });
   }
 
   formatUsers(user) {
@@ -61,7 +61,7 @@ class fakerGenerator {
       userOrdersObj['price'] = order.price;
 
       this.data.userOrders.push(userOrdersObj);
-    })    
+    });
   }
 
   formatUserWishlist(user) {
@@ -74,8 +74,8 @@ class fakerGenerator {
       userWishlistObj['price'] = item.price;
 
       this.data.userWishlist.push(userWishlistObj);
-    })  
+    });
   }
 }
 
-module.exports = fakerGenerator
+module.exports = fakerGenerator;

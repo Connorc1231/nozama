@@ -94,3 +94,6 @@ package-lock.json
 # fakeData csv
 *.csv
 
+# newrelic keys
+newrelic.js
+
