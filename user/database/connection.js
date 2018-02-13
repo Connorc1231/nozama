@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 
 // export MYSQL_URL="mysql://user:pass@host/db"
+// export MYSQL="mysql://connor:password@54.215.152.15/nozama"
 let connection = mysql.createConnection(process.env.MYSQL_URL || {
       host     : 'localhost',
       user     : 'root',
