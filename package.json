@@ -9,8 +9,10 @@
   },
   "scripts": {
     "test": "mocha tests --recursive --exit",
+    "user-test": "mocha user/tests --exit",
     "start": "node index.js",
-    "server-dev": "nodemon index.js"
+    "server-dev": "nodemon index.js",
+    "user-dev": "nodemon ./user/server/index.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +29,7 @@
     "chai-http": "^3.0.0",
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1",
@@ -35,11 +38,16 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "connect-redis": "^3.3.3",
+    "csv-writer": "0.0.3",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
+    "faker": "^4.1.0",
     "mysql": "^2.15.0",
+    "newrelic": "^2.7.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
-    "redis": "^2.8.0"
+    "pg": "^7.4.1",
+    "redis": "^2.8.0",
+    "siege": "^0.2.0"
   }
 }

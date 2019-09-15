@@ -87,3 +87,13 @@ package-lock.json
 
 # vscode
 .vscode
+
+# AWS ec2 pem
+*.pem
+
+# fakeData csv
+*.csv
+
+# newrelic keys
+newrelic.js
+
